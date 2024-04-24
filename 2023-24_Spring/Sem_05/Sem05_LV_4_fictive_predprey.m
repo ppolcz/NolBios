@@ -18,10 +18,12 @@ Color_Y = [0.8500 0.3250 0.0980];
 %%
 
 syms t x y mu real
+a = 10; b = 8;
+a = 9; b = 12;
 f = [
-    3*x*(1 - x/10) - x*y
-    4*y*(-1 + y/8) + x*y
-    ]
+    3*x*(1 - x/a) - x*y
+    4*y*(-1 + y/b) + x*y
+    ];
 x = [x;y];
 
 A = double(jacobian( simplify(f ./ x) , x ));

@@ -125,5 +125,5 @@ for mu = 0.8:0.005:2.2
 
 
     drawnow
-    exportgraphics(fig,sprintf('Results/%03d.jpg',ind))
+    % exportgraphics(fig,sprintf('Results/%03d.jpg',ind))
 end
