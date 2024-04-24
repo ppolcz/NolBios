@@ -37,9 +37,6 @@ K_vals = unique([...
     linspace(K_Hopf*0.99,K_Hopf*1.01,51),...     fin grid around critical point
     ]);
 
-% Initial guess for the first equilibrium point
-Eq1_guess = Eq1_fh(K_vals(1)) + randn(2,1)*0.1;
-
 % Equilibrium points will be stored here.
 SS = [0;0]*K_vals*NaN;
 
