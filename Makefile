@@ -49,38 +49,30 @@ $(addprefix ADD_,$(MODULES)): ADD_%: %
 # Static pattern rules
 $(addprefix STATUS_,$(MODULES)): STATUS_%: %
 	@echo ' '
-	@tput setaf 5 && tput bold 1
 	@echo "Status of $< " | sed -r 's/ \. / Root Repository /g'
 	@echo "──────────────────────────────────────────────────────────────── "
-	@tput sgr0
 	@git -C $< status
 
 # Static pattern rules
 $(addprefix COMMIT_,$(MODULES)): COMMIT_%: %
-	@tput setaf 5 && tput bold 1
 	@step "Trying to commit on $< with message \"$(m)\"" | sed -r 's/ \. / Root Repository /g'
 	@echo "\n──────────────────────────────────────────────────────────────── "
-	@tput sgr0
 	@echo ' '
 	@try git -C $< commit -a $(m)
 	@next
 
 # Static pattern rules
 $(addprefix PULL_,$(ALL_MODULES)): PULL_%: %
-	@tput setaf 5 && tput bold 1
 	@step "Trying to pull $< " | sed -r 's/ \. / Root Repository /g'
 	@echo "\n──────────────────────────────────────────────────────────────── "
-	@tput sgr0
 	@echo ' '
 	@if git -C $< pull origin main ; then : ; else git -C $< push origin main ; fi
 	@next
 
 # Static pattern rules
 $(addprefix PUSH_,$(MODULES)): PUSH_%: %
-	@tput setaf 5 && tput bold 1
 	@step "Trying to push $< " | sed -r 's/ \. / Root Repository /g'
 	@echo "\n──────────────────────────────────────────────────────────────── "
-	@tput sgr0
 	@echo ' '
 	@if git -C $< push origin main ; then : ; else git -C $< push origin main ; fi
 	@next
