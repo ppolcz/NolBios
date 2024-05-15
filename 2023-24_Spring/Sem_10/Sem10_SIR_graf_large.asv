@@ -58,16 +58,17 @@ dI = beta*S*I/nV - q*I;
 dR = q*I - w*R;
 f = matlabFunction([dS;dI;dR],'vars',{t,[S;I;R],beta});
 
+beta = 1-(1-p).^mean(degree(G1));
+for beta = 0.3:0.01:0.4
+
 x0 = [
     1-perc_I_at_t0
     perc_I_at_t0
     0
     ]*nV;
 
-beta = 1-(1-p).^mean(degree(G1));
-[t,x] = ode45(@(t,x) f(t,x,beta),[0,Ndays],x0);
-plot(t,x(:,2),'Color',COL.Color_Black,'LineWidth',2,'DisplayName','ODE solution')
-
+[t,x] = ode45(f,[0,Ndays],x0);
+plot(t,x(:,2),'k','LineWidth',2,'DisplayName','ODE solution')
 
 for Selected_Graph = [1,2,3] 
     
@@ -113,7 +114,7 @@ for Selected_Graph = [1,2,3]
     % Pl.EdgeAlpha = 0.1;
     
     for simNr = 1:simnum
-        % disp(simNr)
+        disp(simNr)
     
         % itt tárolom a csúcsok állapotát: 
         % 0 egészséges, de fogékony, 

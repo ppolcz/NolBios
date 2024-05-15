@@ -1,0 +1,41 @@
+function [G,A] = BDmodel(nV,nE)
+%Példa fv hívások: [G] = ERmodel(1, 0, 10, 0, 5)
+%[G] = ERmodel(0, 1, 1500, 0, 8000) %a fokszám eloszlás Poisson, haranggörbe
+%
+%   ERmodel metódus gráfgenerálásra használható, Erdõs - Rényi eljárása
+%   szerint
+%
+%   Bemenete:
+%   nV       - csúcsok száma
+%   nE       - az élek száma
+%%
+[i,j] = meshgrid(1:nV);
+P = tril((i ./ j).^2,-1);
+
+R = rand(nV,nV);
+
+nE_ = @(s) sum(s*R(:) <= P(:))*2;
+
+s = [1,1];
+while nE_(s(2)) > nE
+    s(2) = s(2) * 2;
+end
+while nE_(s(1)) < nE
+    s(1) = s(1) / 2;
+end
+
+actnE = nE_(mean(s));
+while nE ~= actnE
+
+    if actnE < nE
+        s = [s(1) mean(s)];
+    else
+        s = [mean(s) s(2)];
+    end
+    actnE = nE_(mean(s));
+end
+
+A = mean(s)*R <= P;
+A = A + A'
+
+G = graph(A);

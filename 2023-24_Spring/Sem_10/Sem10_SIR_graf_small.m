@@ -20,6 +20,14 @@ nE0 = 3;
 % Barabasi-Albert graf vegso eleinek szama
 nE = height(G.Edges);
 
+if false
+    [G,A] = BDmodel(nV,nE);
+end
+
+if true
+    [G,A] = ERmodel(nV,nE);
+end
+
 %%
 
 % Megjelenites (lassuk a strukturat)
