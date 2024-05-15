@@ -15,7 +15,8 @@ D=1; %diffúzió sebessége
 u=zeros(nx,1);%exp(-0.1*x);%  %a hullám kezdeti értékei (ha sehol se 0 kezdetben a rendszer, az befolyásolja a hullámfrontot) 
 %kezdeti értékek:
 u(1) =1; %5;%0.1;%1;% az 1. pontban 1 (a többiben 0) a hullám kezdetben
-u(1:50) =1;%0.1;%5;%1; % (pozitív) kezdettõl függetlenül 1-re áll be a hullám
+u(end) = 1;
+% u(1:50) =1;%0.1;%5;%1; % (pozitív) kezdettõl függetlenül 1-re áll be a hullám
 % u(250:end)=1;% visszafele is terjed
 % u(250:260)=5;%5;%0.1;%1; %csúcsból indul 
 % u([250:260, 200:230])=1; %0.1;%5;%1;% 2 csúcs indul 
@@ -24,8 +25,8 @@ u(1:50) =1;%0.1;%5;%1; % (pozitív) kezdettõl függetlenül 1-re áll be a hullám
 % u(1:100)=linspace(2,0,100); %a kezdeti hulámfronttól se függ
 % u(1:100)=linspace(0.5,0,100); %a kezdeti hulámfronttól se függ
 % négyzetets Fisher:
-u(250:300)=rand(1,51)*2-1; %random kezdet (lehet negatív)
-% u(250:300)=linspace(-0.5,2,51); %a kezdeti hulámfronttól se függ (negatív rész is)
+% u(250:300)=rand(1,51)*2-1; %random kezdet (lehet negatív)
+u(250:300)=linspace(-0.5,2,51); %a kezdeti hulámfronttól se függ (negatív rész is)
 %u(200:249)=linspace(-1,1,50); u(250:300)=linspace(1,-0.1,51); u(301:350)=linspace(-0.1,1,50);%majdnem -1-re áll be
 %u(200:249)=linspace(-1,1,50); u(250:300)=linspace(1,-0.06,51); u(301:350)=linspace(-0.06,1,50);%sokáig úgy tûnik -1-re áll be, aztán ugrik fel 1-re (hosszabb futás): metastabilitás 
 
@@ -54,7 +55,7 @@ for t = 1:nt %minden idõpillanatban
             utan=i+1;
         end
         % 1. dU/dt = c*U*(1-U) + D*dU^2/dx^2 % reakc tag+diff tag=fisher, térben szétterjed (diff),
-        % u(i) = u2(i) +c*dt*u2(i)*(1-u2(i))+D*dt/dx^2*(u2(utan)-2*u2(i)+u2(elott)); 
+        % u(i) = u2(i) + c*dt*u2(i)*(1-u2(i)) + D*dt/dx^2*(u2(utan)-2*u2(i)+u2(elott)); 
         % 2. dU/dt = c*U*(1-U^2) + D*dU^2/dx^2 % négyzetes fisher (-1-es stabil pont is van)
         u(i) = u2(i) +c*dt*(u2(i))*(1-u2(i)^2)+D*dt/dx^2*(u2(utan)-2*u2(i)+u2(elott)); 
         % hasonló rendszerek:

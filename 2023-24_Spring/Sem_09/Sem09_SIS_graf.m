@@ -75,9 +75,9 @@ ylabel('fertõzött');
 % paraméterek:
 p = 0.2; % 0.4, 1;
 q = 0.05; % 0.2, 1;
-w_new_variant = 0.7;
-w_standard = 0.02; 
-kezdetifert = 0.01;
+w_new_variant = 0.7; % 0.7;
+w_standard = 0.01; 
+kezdetifert = 0.1;
 immunloss_rate = 0.2; % 1, 0.2, 0
 
 isS = @(csucs) csucs == 0;
@@ -149,7 +149,7 @@ for simNr = 1:simnum
         drawnow
     
         % waitforbuttonpress;
-        % pause(0.1)
+        % pause(1)
     end
 
 end

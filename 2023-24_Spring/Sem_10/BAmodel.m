@@ -1,4 +1,4 @@
-function [G] = BAmodel(rajz, fokszam, n, n0, L, L0)
+function [G,A] = BAmodel(nV,nV0,nE0,nE_new)
 %Példa fv hívások: [G] = BAmodel(1, 0, 50, 3, 1, 3)
 %[G] = BAmodel(0, 1, 1500, 3, 1, 3) %a fokszám eloszlás hatványfüggvény
 %
@@ -19,62 +19,53 @@ function [G] = BAmodel(rajz, fokszam, n, n0, L, L0)
 %   G.nv    - csúcsok száma (vertices)
 %   G.ne    - élek száma (edges)
 
-A = zeros(n);
-steps=n-n0; %ennyi csúcs kell még
+%%
 
+A = sparse(nV,nV);
 
 % Elején véletlenszerûen feltöltjük a kezdeti gráfot L0 éllel
-for j=1:L0
-    l_ = 1;
-    n_ = 1;
-    while (A(l_,n_)~=0) || (l_==n_)
-        l_ = randi([1,n0],1);
-        n_ = randi([1,n0],1);
-    end
-    A (l_,n_) = 1;
-    A (n_,l_) = 1;
-end
+[~,A0] = ERmodel(nV0,nE0);
+A(1:nV0,1:nV0) = A0;
 
 % Mindegyik idõpillanatban hozzáadunk egy csúcsot, míg m <= L, ekkor ez a
 % csúcs a meglévõ m csúccsal lehet kapcsolatban. Hogy segítsük a preferencia
 % szerinti kapcsolódást, az új csúcsot p(A_i,j) = L_j / sum(A_j)
 % valószínûséggel köti a már meglévõ csúcshoz.
 
-for t = 1:steps %új csúcs hozzáadása
-    
-    k=sum(A(1:n0+t-1,:)); %már meglévõ csúcsok fokszámai
-    P   = k /sum(k); %normálás
-    PP  = cumsum(P); %valószínûségi eloszlás készítése
-    j=0; %behúzott élek száma
-    k = 0; %rossz helyre tervezett él
-    while (j<L && k<L^3)   % k<L^3 csak a végtelen ciklus elkerülése miatt van
-        rv = rand(1);
-        index = find(PP >= rv, 1); %melyik csúcshoz tartozzon az él
+for t = nV0+1:nV %új csúcs hozzáadása
+    idx = 1:t-1;
+
+    k = full(sum(A(idx,idx))); % már meglévõ csúcsok fokszámai
+    P = cumsum(k); % valószínûségi eloszlás készítése
+    j = 0; % behúzott élek száma
+    k = 0; % rossz helyre tervezett él
+    while (j < nE_new && k < nE_new^3)   % k<L^3 csak a végtelen ciklus elkerülése miatt van
+        rv = rand(1)*P(end);
+        index = find(P >= rv, 1); %melyik csúcshoz tartozzon az él
         % ha még nincs él, hozzáadjuk
-        if A(n0+t,index)~=1
-            A(n0+t,index)=1;
-            A(index,n0+t)=1;
-            j=j+1;
+        if A(t,index) ~= 1
+            A(t,index) = 1;
+            A(index,t) = 1;
+            j = j+1;
         else
-            k=k+1; %% error raise
+            k = k+1; %% error raise
         end
          
     end
     
-    if (k>=L^3)
+    if (k >= nE_new^3)
         display('error');
         G = [];
         return;
     end
-    
 end
 
-G = struct('Adj', A, 'nv', n, 'ne', nnz(A)/2);
+G = graph(A);
 
-if rajz==1
-    plotGraphBasic(G,5,1);
-end
 
-if fokszam==1
-    plotKPk(G);
-end
+% MyColorMap = [
+%     COL.Color_1
+%     COL.Color_Red
+%     COL.Color_Dark_Green
+%     ];
+% colormap(gca,MyColorMap)

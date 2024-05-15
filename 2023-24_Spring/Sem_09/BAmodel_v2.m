@@ -1,4 +1,4 @@
-function [G] = BAmodel(rajz, fokszam, n, n0, L, L0)
+function [G] = BAmodel_v2(n,n0,L,L0)
 %Példa fv hívások: [G] = BAmodel(1, 0, 50, 3, 1, 3)
 %[G] = BAmodel(0, 1, 1500, 3, 1, 3) %a fokszám eloszlás hatványfüggvény
 %
@@ -19,30 +19,29 @@ function [G] = BAmodel(rajz, fokszam, n, n0, L, L0)
 %   G.nv    - csúcsok száma (vertices)
 %   G.ne    - élek száma (edges)
 
-A = zeros(n);
-steps=n-n0; %ennyi csúcs kell még
+%%
 
+
+%%
+
+A = zeros(n);
 
 % Elején véletlenszerûen feltöltjük a kezdeti gráfot L0 éllel
-for j=1:L0
-    l_ = 1;
-    n_ = 1;
-    while (A(l_,n_)~=0) || (l_==n_)
-        l_ = randi([1,n0],1);
-        n_ = randi([1,n0],1);
-    end
-    A (l_,n_) = 1;
-    A (n_,l_) = 1;
-end
+A0 = zeros(n0);
+idx = find(tril(ones(n0),-1));
+sigma = randperm(numel(idx),L0);
+A0(idx(sigma)) = 1;
+A0 = A0 + A0' - diag(A0);
+A(1:n0,1:n0) = A0;
 
 % Mindegyik idõpillanatban hozzáadunk egy csúcsot, míg m <= L, ekkor ez a
 % csúcs a meglévõ m csúccsal lehet kapcsolatban. Hogy segítsük a preferencia
 % szerinti kapcsolódást, az új csúcsot p(A_i,j) = L_j / sum(A_j)
 % valószínûséggel köti a már meglévõ csúcshoz.
 
-for t = 1:steps %új csúcs hozzáadása
+for t = find(sum(A) == 0) %új csúcs hozzáadása
     
-    k=sum(A(1:n0+t-1,:)); %már meglévõ csúcsok fokszámai
+    k=sum(A); % már meglévõ csúcsok fokszámai
     P   = k /sum(k); %normálás
     PP  = cumsum(P); %valószínûségi eloszlás készítése
     j=0; %behúzott élek száma
@@ -51,9 +50,9 @@ for t = 1:steps %új csúcs hozzáadása
         rv = rand(1);
         index = find(PP >= rv, 1); %melyik csúcshoz tartozzon az él
         % ha még nincs él, hozzáadjuk
-        if A(n0+t,index)~=1
-            A(n0+t,index)=1;
-            A(index,n0+t)=1;
+        if A(t,index)~=1
+            A(t,index)=1;
+            A(index,t)=1;
             j=j+1;
         else
             k=k+1; %% error raise
@@ -69,12 +68,12 @@ for t = 1:steps %új csúcs hozzáadása
     
 end
 
-G = struct('Adj', A, 'nv', n, 'ne', nnz(A)/2);
+G = graph(A);
 
-if rajz==1
-    plotGraphBasic(G,5,1);
-end
 
-if fokszam==1
-    plotKPk(G);
-end
+% MyColorMap = [
+%     COL.Color_1
+%     COL.Color_Red
+%     COL.Color_Dark_Green
+%     ];
+% colormap(gca,MyColorMap)

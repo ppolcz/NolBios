@@ -23,7 +23,7 @@ M(Idx) = 1;
 M(1) = 2;
 
 [x,y] = meshgrid(linspace(-1,1,m));
-Kernel = (x.^2 + 4*y.^2) <= 1;
+Kernel = (x.^2 + y.^2) <= 1;
 
 isS = @(M) M == 0;
 isI = @(M) M == 1;
