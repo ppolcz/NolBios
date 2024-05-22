@@ -6,7 +6,7 @@ simnum = 20;
 %%
 
 % Graf csucsainak szama
-nV = 300;
+nV = 200;
 
 % Minden egyes újonnan hozzáadott csúcs éleinek száma (további csúcsok hozzáadásával ez
 % természetesen még nőhet).
