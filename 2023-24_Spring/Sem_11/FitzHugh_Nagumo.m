@@ -27,11 +27,13 @@ T = 200;
 x0 = [0.1;0];
 
 fig = figure(123123);
-for I_val = 0:0.01:1
+fig.Position(3:4) = [1209 552];
+i = 1;
+for I_val = 0:0.01:1.7
 
     Tl = tiledlayout(1,2,'TileSpacing','compact','Padding','compact');
 
-    nexttile;
+    nexttile; hold on; grid on; box on;
     [tt,xx] = ode45(@(t,x) f(t,x,I_val),[0,T],x0);
     plot(tt,xx)
     
@@ -46,5 +48,8 @@ for I_val = 0:0.01:1
     axis(Lims);
 
     drawnow
-    pause(0.1)
+    % pause(0.1)
+    fname = sprintf('Results/Fig%03d.jpg',i);
+    exportgraphics(fig,fname)
+    i = i + 1;
 end
