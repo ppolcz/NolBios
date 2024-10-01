@@ -21,7 +21,7 @@ syms t x y mu real
 a = 10; b = 8;
 a = 9; b = 12;
 f = [
-    3*x*(1 - x/a) - x*y
+    3*x*(1 - x/a) - x*y   % Az x*y eseten meg lett cserelve az elojel: ellenorizd
     4*y*(-1 + y/b) + x*y
     ];
 x = [x;y];
