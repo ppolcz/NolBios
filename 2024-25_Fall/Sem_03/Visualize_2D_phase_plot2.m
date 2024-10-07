@@ -17,6 +17,7 @@ arguments
     opts.FigDim = [830 370];
     opts.LaTeX = @(p) "$\left\{\begin{array}{l} \dot x = " + latex(f(1)) + "\\ \dot y = " + latex(f(2)) + " \end{array}\right.$";
     opts.RunAfter = @(Fig,ind,p_val) [];
+    opts.PlotDirections = 1;
 end
 
 sol = solve(f,x);
@@ -54,7 +55,40 @@ for p_val = p_vals
         'xlim',XLim,'ylim',YLim, ...
         'plotNonSaddleTrajectory',true, ...
         'tspan',opts.TimeSpan);
+
+    %% Generate title and directions
+    % in which we present the eigenvalues of the equilibria
+
+    EP = [SEP_set , UEP_set];
+    [~,Idx] = sort(min(abs(EP),[],1) + eps*vecnorm(EP,2) + 1e3*eps*abs(EP(2,:)));
+    EP = EP(:,Idx);
+
+    e = zeros(2,0);
+    s = zeros(4,0);
+
+    u = 1;
+    txt = cell(1,size(EP,2));
+    for xs = EP
+        [S,D] = eig(jacfun(xs));
+        lambda = diag(D);
+        if abs(imag(lambda(1))) > 0
+            txt{u} = sprintf('Eq%d: $%.2f %s %.2fj$',u,real(lambda(1)),'\pm',imag(lambda(1)));
+        else
+            e = [e xs xs xs xs];
+            s = [s S -S];
+            txt{u} = sprintf('Eq%d: $%.2f, %.2f$', u,sort(lambda));
+        end
+        u = u + 1;
+    end
     
+    txt2 = cell(1,ceil(numel(txt)/2));
+    txt2{end} = txt{end};
+    for u = 1:2:numel(txt)-1
+        txt2{(u+1)/2} = strjoin(txt(u:u+1),', ');
+    end
+
+    %%
+
     % Compute the values of the vector field in a given number of grid points.
     [xx,yy] = meshgrid(limX:opts.XRes:LimX,limY:opts.YRes:LimY);
     f1_val = f1_fh(xx,yy,p_val_cell{:});
@@ -102,7 +136,18 @@ for p_val = p_vals
     
     fimplicit(@(x,y) f1_fh(x,y,p_val_cell{:}),[XLim,YLim]);
     fimplicit(@(x,y) f2_fh(x,y,p_val_cell{:}),[XLim,YLim]);
-    
+
+    if opts.PlotDirections > 0
+        ss = s*opts.PlotDirections;
+        q = quiver(e(1,:),e(2,:),ss(1,:),ss(2,:));
+        q.ShowArrowHead = "off";
+        q.LineWidth = 2;
+        q.AutoScale = "off";
+        q.Color = 'red';
+    end
+
+    title(txt2,'Interpreter','latex')
+
     drawnow
     opts.RunAfter(Fig,ind,p_val);
 end
