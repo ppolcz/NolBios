@@ -1,4 +1,4 @@
-function [trajectories,starts,ends,SEP_set,UEP_set] = phase_portrait(odefun,jacfun,varargin)
+function [trajectories,starts,ends,SEP_set,UEP_set,limit_cycles] = phase_portrait(odefun,jacfun,varargin)
 %% Help for plotpp:
 %
 % Parameter definitions:
@@ -16,7 +16,7 @@ function [trajectories,starts,ends,SEP_set,UEP_set] = phase_portrait(odefun,jacf
 %
 %
 % -- plotNonSaddleTrajectory: whether or not to plot non-saddle points
-%                             trajcetories, default value is true;
+%                             trajectories, default value is true;
 % -- plotEPs:    whether or not to plot equilibrium points (EPs),
 %                default value is true;
 % -- plotArrows: whether or not to plot arrows, default value is true;
@@ -55,7 +55,7 @@ function [trajectories,starts,ends,SEP_set,UEP_set] = phase_portrait(odefun,jacf
 %     legend({'Trajectory'}, 'Interpreter',"latex", 'location', 'northwest')
 
 %% Input praser
-default_tspan = 40;
+default_tspan = 10000;
 default_xLim = [-5, 5];
 default_yLim = [-5, 5];
 default_xPlotNum = 4;
@@ -120,6 +120,8 @@ x_margin = (xLim(2)-xLim(1))*margin_ratio;
 y_margin = (yLim(2)-yLim(1))*margin_ratio;
 xBorder = [xLim(1)-x_margin, xLim(2)+x_margin];
 yBorder = [yLim(1)-y_margin, yLim(2)+y_margin];
+
+epsilon = 2\(xLim(2) - xLim(1) + yLim(2) - yLim(1)) * 1e-3;
 
 f = @(x) odefun(0, x);
 
@@ -260,21 +262,44 @@ opts = odeset('RelTol', 1e-5, 'AbsTol', 1e-7,...
 starts = []; ends = [];
 
 trajectories = {};
+limit_cycles = {};
 
 forward_plotNum = size(x0_set_forward,2);
 for cnt = 1:forward_plotNum
-    [~,xsol] = ode45(odefun, [0 tspan], x0_set_forward(:,cnt), opts);
+    [tsol,xsol] = ode45(odefun, [0 tspan], x0_set_forward(:,cnt), opts);
     trajectories{end+1} = xsol;
     if (r.plotArrows)
     [starts, ends] = calcSpecGrad(starts, ends,...
                                   xsol(:,1), xsol(:,2),...
                                   xLim, yLim, arrowDensity);
     end
+
+    if abs(tsol(end) - tspan) < 1e-10
+        % Checking if it is a stable limit cycle or not
+
+        I = find(vecnorm(xsol(1:end,:) - xsol(end,:),2,2) > epsilon*10,1,'last');
+        I = find(vecnorm(xsol(1:I-1,:) - xsol(end,:),2,2) < epsilon*10,1,'last');
+
+        if ~isempty(I)
+            limit_cycles{end+1} = xsol(I-1:end,:);
+        end
+
+        % vecnorm(xsol(I,:) - xsol(end,:),2,2)
+        % 
+        % x0 = xsol(end,:)';
+        % opts_LC = odeset('MaxStep',epsilon,...
+        %                  'Events', @(t,x) termevent(t,x,[xBorder,yBorder],x0,epsilon));
+        % [tsol,xsol] = ode45(odefun, [0 tspan], x0, opts_LC);
+        % 
+        % if norm(xsol(end,:)' - x0) < epsilon
+        %     limit_cycles{end+1} = xsol([end,1:end],:);
+        % end
+    end
 end
 
 backward_plotNum = size(x0_set_backward,2);
 for cnt = 1:backward_plotNum
-    [~,xsol] = ode45(odefun, [0 -tspan], x0_set_backward(:,cnt), opts);
+    [tsol,xsol] = ode45(odefun, [0 -tspan], x0_set_backward(:,cnt), opts);
     trajectories{end+1} = xsol;
     % plot(ax, xsol(:,1), xsol(:,2),...
     %          'color', cline, 'linewidth', 1.0);
@@ -282,6 +307,17 @@ for cnt = 1:backward_plotNum
     [starts, ends] = calcSpecGrad(starts, ends,...
                                   flip(xsol(:,1)), flip(xsol(:,2)),...
                                   xLim, yLim, arrowDensity);
+    end
+
+    if abs(tsol(end) + tspan) < 1e-10
+        % Checking if it is an unstable limit cycle or not
+
+        I = find(vecnorm(xsol(1:end,:) - xsol(end,:),2,2) > epsilon*10,1,'last');        
+        I = find(vecnorm(xsol(1:I-1,:) - xsol(end,:),2,2) < epsilon*10,1,'last');
+
+        if ~isempty(I)
+            limit_cycles{end+1} = xsol(I-1:end,:);
+        end
     end
 end
 
@@ -301,6 +337,23 @@ function [value,isterminal,direction] = myevent(~,x,xBorder,yBorder)
     isterminal=1;
     direction= -1;
 end
+
+function [q,isTerm,dir] = termevent(t,x,lims,Eq,epsilon)
+    % lims = [xmin,xmax,ymin,ymax]
+
+    q = [
+        x(1)-lims(1)  % q1
+        x(1)-lims(2)  % q2
+        x(2)-lims(3)  % q3
+        x(2)-lims(4)  % q4
+        vecnorm(Eq - x)' - epsilon
+        ];
+    
+    isTerm = [1;1;1;1;ones(size(Eq,2),1)];
+
+    dir = [0;0;0;0;-ones(size(Eq,2),1)];
+end
+
 
 %% functions from phasePortraitPlot
 function [starts, ends] = calcSpecGrad(starts, ends, x, y,...

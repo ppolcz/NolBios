@@ -1,59 +1,47 @@
 %%
 %  Author: Peter Polcz (ppolcz@gmail.com) 
-%  Created on 2023. October 04. (2023a)
 %
 
-syms a mu x y real
-
-assumeAlso(a > 0)
+syms mu x y real
 assumeAlso(mu > 0)
-assumeAlso(mu < 1)
 
+gamma = 2;
 f_sym = [
-    a - x + x^2*y
-    mu - x^2*y
+    1 - x*y^gamma
+    mu*y*(x*y^(gamma-1) - 1)
     ];
-
 xy = [x;y];
 
 sol = solve(f_sym,xy);
 
-P_sym = [
+P = double([
     sol.x
     sol.y
-    ];
+    ]);
 
-Ap_sym = subs(jacobian(f_sym,xy),xy,P_sym);
+Ap_sym = subs(jacobian(f_sym,xy),xy,P);
 
 D_sym = simplify(det(Ap_sym));
 Tr_sym = simplify(trace(Ap_sym));
 
-num_sym = simplify(numden(Tr_sym));
+% Find Hopf bifurcation points where the equilibrium passes the trace-determinant parabola
+mu_bf = roots(sym2poly(simplify(numden(Tr_sym^2/4 - D_sym))));
+mu_Imag1 = min(mu_bf);
+mu_Imag2 = max(mu_bf);
 
-a = 1/8;
-
-r = roots(sym2poly(subs(simplify(numden(Tr_sym^2/4 - D_sym)))));
-r(abs(imag(r)) > 0) = [];
-r(r < 0) = [];
-r3 = min(r);
-r4 = max(r);
-
-r = roots(sym2poly(subs(num_sym)));
-r(r < 0) = [];
-r1 = min(r);
-r2 = max(r);
-clear r
+% Find the bifurcation points where the equilibrium changes its stability (from stable to
+% unstable, or viceversa)
+mu_Hopf = roots(sym2poly(Tr_sym));
 
 MuLim = [0 2.3];
 
 Step = 0.01;
-r1_ = linspace(r1-Step/2,r1+Step/2,51);
-r2_ = linspace(r2-Step/2,r2+Step/2,51);
-r3_ = linspace(r3-Step/2,r3+Step/2,31);
-r4_ = linspace(r4-Step/2,r4+Step/2,31);
-mu_vals = sort([ (MuLim(1):Step:MuLim(2)) r1_ r2_ r3_  r4_ ]);
+r1_ = linspace(mu_Hopf-Step/2,mu_Hopf+Step/2,51);
+r3_ = linspace(mu_Hopf1-Step/2,mu_Hopf1+Step/2,31);
+r4_ = linspace(mu_Hopf2-Step/2,mu_Hopf2+Step/2,31);
+mu_vals = sort([ (MuLim(1):Step:MuLim(2)) r1_ r3_  r4_ ]);
 
-mu_resulting_LC = mu_vals( r1 <= mu_vals & mu_vals <= r2 );
+mu_resulting_LC = mu_vals( mu_Hopf <= mu_vals & mu_vals <= r2 );
 N = numel(mu_resulting_LC);
 
 radian = -pi:0.005:pi;
@@ -64,7 +52,7 @@ Y = zeros(M,N);
 MU = zeros(M,N);
 
 f_fh = matlabFunction(subs(f_sym),'Vars',{xy,mu});
-P_fh = matlabFunction(subs(P_sym),'Vars',{mu});
+P_fh = matlabFunction(subs(P),'Vars',{mu});
 Ap_fh = matlabFunction(subs(Ap_sym),'Vars',{mu});
 D_fh = matlabFunction(subs(D_sym),'Vars',{mu});
 Tr_fh = matlabFunction(subs(Tr_sym),'Vars',{mu});
@@ -174,7 +162,7 @@ for mu = mu_vals
     A = Ap_fh(mu);
     eigs(:,ind) = eig(A);
 
-    if r1 <= mu && mu <= r2
+    if mu_Hopf <= mu && mu <= r2
         % find period
         [pks,locs] = findpeaks(x_sol(:,1));
         T_period  = mean(diff(t_sol(locs)));
@@ -201,13 +189,13 @@ for mu = mu_vals
         % Center limit cycle such that the origin is in its focus
         x_centered = x_sol - P';
         
-        r = vecnorm(x_centered,2,2);
+        mu_Hopf = vecnorm(x_centered,2,2);
         theta = atan2(x_centered(:,2),x_centered(:,1));
 
         [theta,Idx] = sort(theta);
-        r = r(Idx);
+        mu_Hopf = mu_Hopf(Idx);
 
-        x_sol = [ r.*cos(theta) , r.*sin(theta) ] + P';
+        x_sol = [ mu_Hopf.*cos(theta) , mu_Hopf.*sin(theta) ] + P';
 
         plot3(x_sol(:,1),x_sol(:,1)*0+mu,x_sol(:,2),'Color',Color_1);
         Pl_LC.XData = x_sol(:,1);

@@ -50,7 +50,7 @@ for p_val = p_vals
     odefun = @(t,x) f_fh(x,p_val);
     jacfun = @(x) J_fh(x,p_val);
 
-    [trajectories,starts,ends,SEP_set,UEP_set] = phase_portrait(odefun,jacfun, ...
+    [trajectories,starts,ends,SEP_set,UEP_set,limit_cycles] = phase_portrait(odefun,jacfun, ...
         'EP',double(subs(Eq,p,p_val)), ...
         'xlim',XLim,'ylim',YLim, ...
         'plotNonSaddleTrajectory',true, ...
@@ -99,6 +99,8 @@ for p_val = p_vals
     f1_val = f1_val ./ r;
     f2_val = f2_val ./ r;
         
+    %% Plot 1
+
     Tl = tiledlayout(1,2,'TileSpacing','compact','Padding','compact');
     nexttile, hold on, box on, grid on
     for i = 1:numel(trajectories)
@@ -122,6 +124,8 @@ for p_val = p_vals
         
     streamslice(xx,yy,f1_val,f2_val);
     
+    %% Plot 2
+
     nexttile, hold on, box on, grid on
     streamslice(xx,yy,f1_val,f2_val);
     if ~isempty(SEP_set)
@@ -145,6 +149,12 @@ for p_val = p_vals
         q.AutoScale = "off";
         q.Color = 'red';
     end
+
+    for i = 1:numel(limit_cycles)
+        x = limit_cycles{i};
+        plot(x(:,1),x(:,2),'r','LineWidth',1.5);
+    end
+
 
     title(txt2,'Interpreter','latex')
 
