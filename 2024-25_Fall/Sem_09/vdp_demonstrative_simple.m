@@ -21,17 +21,19 @@ phi = [
 x1^2*x2
     ];
 
+e = 1;
 M = [
     0 -1 0 0 
-    1 -1 0 1
+    1 -e 0 e
     ];
 
 f = M*phi;
 
 %% Visualize the phase portrait of the system
 
-Visualize_2D_phase_plot2(-f,x,'XLim',[-3,3],'YLim',[-3,3],'FigNr',12)
-Visualize_2D_phase_plot2(f,x,'XLim',[-3,3],'YLim',[-3,3],'FigNr',14)
+scale = max([max(1,e/2),min(e,7)/1.7,min(e,1.5)/1.2]);
+Visualize_2D_phase_plot2(-f,x,'XLim',[-3,3],'YLim',[-3,3]*scale,'FigNr',12)
+Visualize_2D_phase_plot2(f,x,'XLim',[-3,3],'YLim',[-3,3]*scale,'FigNr',14)
 
 %% Visualize the time evolution of the original Van der Pol oscillator system
 
@@ -40,13 +42,15 @@ f_ode = matlabFunction(-f,'vars',{t,x});
 
 fig = figure(15);
 Tl = tiledlayout(2,1,'TileSpacing','compact','Padding','compact');
-nexttile, hold on, grid on, box on;
+ax1 = nexttile; hold on, grid on, box on;
 plot(tt,xx(:,1)), 
 ylabel('$x_1$','Interpreter','latex','FontSize',18);
-nexttile, hold on, grid on, box on;
+ax2 = nexttile; hold on, grid on, box on;
 plot(tt,xx(:,2))
 ylabel('$x_2$','Interpreter','latex','FontSize',18);
 xlabel('$t$','Interpreter','latex','FontSize',18);
+
+Link = linkprop([ax1,ax2],'XLim');
 
 %% Derivative of phi
 
@@ -121,9 +125,6 @@ X_v = [
     1.0487   -0.8471
     1.3008    0.8370
     ];
-[X_v,~,X_fci,proj] = norms_of_X(X_v);
-
-[X_NrF,X_NrFc] = size(X_fci);
 
 P = sdpvar(m);
 L = sdpvar(m,s,'full');

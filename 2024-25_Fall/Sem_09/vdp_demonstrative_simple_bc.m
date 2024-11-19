@@ -133,9 +133,9 @@ X_v = [
     1.0487   -0.8471
     1.3008    0.8370
     ];
-[X_v,~,X_fci,proj] = norms_of_X(X_v);
+[X_v,ak,X_fci] = norms_of_X(X_v);
 
-[X_NrF,X_NrFc] = size(X_fci);
+[X_NrF,~] = size(X_fci);
 
 P = sdpvar(m);
 L = sdpvar(m,s,'full');
