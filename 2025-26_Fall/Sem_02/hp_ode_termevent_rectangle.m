@@ -3,7 +3,7 @@
 %  Created on 2023. September 28. (2023a)
 %
 function [position,isterminal,direction] = ...
-    hp_ode_terminal_event_rectangle(~,x,x1lim,x2lim)
+    hp_ode_termevent_rectangle(~,x,x1lim,x2lim)
 arguments
     ~,x
     x1lim = [-10 10]; % Default region

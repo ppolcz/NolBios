@@ -12,7 +12,7 @@ T = 10;
 
 x1lim = [-3 3];
 x2lim = [-3 3];
-term_event = @(t,x) hp_ode_terminal_event_rectangle(t,x,x1lim,x2lim);
+term_event = @(t,x) hp_ode_termevent_rectangle(t,x,x1lim,x2lim);
 odeopts = odeset('Events',term_event);
 
 %{
