@@ -7,6 +7,7 @@ arguments
     f,x
     p = sym('DUMMY__');
     p_vals = 0;
+    opts.PositiveSystem = false;
     opts.EqPoints = [];
     opts.XRes = 0.05;
     opts.YRes = 0.05;
@@ -83,7 +84,9 @@ for p_val = p_vals
     xlim([limX,LimX])
     ylim([limY,LimY])
     
-    fill([2 2 -1 -1 0 0]*LimX,[0 -1 -1 2 2 0]*LimY,[0,0,0],'FaceAlpha',0.1)
+    if opts.PositiveSystem
+        fill([2 2 -1 -1 0 0]*LimX,[0 -1 -1 2 2 0]*LimY,[0,0,0],'FaceAlpha',0.1)
+    end
     
     nexttile, hold on, box on, grid on
     for i = 1:numel(trajectories)
@@ -103,8 +106,10 @@ for p_val = p_vals
     ylim([limY,LimY])
     title(opts.LaTeX(p_val),'Interpreter','latex')
     
-    fill([2 2 -1 -1 0 0]*LimX,[0 -1 -1 2 2 0]*LimY,[0,0,0],'FaceAlpha',0.1)
-        
+    if opts.PositiveSystem
+        fill([2 2 -1 -1 0 0]*LimX,[0 -1 -1 2 2 0]*LimY,[0,0,0],'FaceAlpha',0.1)
+    end
+
     streamslice(xx,yy,f1_val,f2_val);
     
     nexttile, hold on, box on, grid on
@@ -115,7 +120,9 @@ for p_val = p_vals
     if ~isempty(UEP_set)
         plot(UEP_set(1,:),UEP_set(2,:),'ro','MarkerSize',7,'LineWidth',2);
     end
-    fill([2 2 -1 -1 0 0]*LimX,[0 -1 -1 2 2 0]*LimY,[0,0,0],'FaceAlpha',0.1)
+    if opts.PositiveSystem
+        fill([2 2 -1 -1 0 0]*LimX,[0 -1 -1 2 2 0]*LimY,[0,0,0],'FaceAlpha',0.1)
+    end
     xlim(XLim)
     ylim(YLim)
     

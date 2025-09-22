@@ -1,0 +1,33 @@
+%% Simbiosis
+
+syms t x y real
+f = [
+    1*x*(-1) + x*y
+    2*y*(1 - y/2) + x*y
+    ];
+x = [x;y];
+
+Visualize_2D_phase_plot2(f,x, ...
+    'XLim',[-1,15], ...
+    'YLim',[-1,15], ...
+    'PlotDirections',2, ...
+    'LaTeX',latexify(f), ...
+    'RunAfter',Exporter('Simbiosis'));
+
+%% Simbiosis
+% Limited carrying capacity for BOTH species, although in cooperation both
+% species can exceed their own limits to achieve global carrying capacity.
+
+syms t x y real
+f = [
+    x*(5-x) + 0.5*x*y
+    y*(5-y) + 0.5*x*y
+    ];
+x = [x;y];
+
+Visualize_2D_phase_plot2(f,x, ...
+    'XLim',[-1,20], ...
+    'YLim',[-1,20], ...
+    'PlotDirections',2, ...
+    'LaTeX',latexify(f), ...
+    'RunAfter',Exporter('Simbiosis2'));
