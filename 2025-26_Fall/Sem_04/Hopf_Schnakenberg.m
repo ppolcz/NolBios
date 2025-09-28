@@ -76,7 +76,7 @@ fig = figure(312);
 fig.Position(3:4) = [777 510];
 Tl = tiledlayout(2,3,'Padding','compact','TileSpacing','compact');
 if exist("eigs","var")
-    Ax4 = nexttile([1,3]);
+    Ax4 = nexttile(2,[1,2]);
     hold on; grid on; box on;
     plot(real(eigs)',imag(eigs)');
     xline(0,'k');
