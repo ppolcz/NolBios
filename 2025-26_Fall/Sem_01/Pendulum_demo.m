@@ -46,6 +46,8 @@ T = 20;    % The solution is computed for t = [0,T]
 hp_animate_pendulum(t_sol,x_sol,V_fh,'V_Levels',m*g*l * (0:0.5:5),...
     'Record',false,'ExportName','Pendulum_damped_oscillation')
 
+return
+
 %% Damped oscillation, periodic external input
 
 m = 1;

@@ -112,6 +112,7 @@ if exist("eigs","var")
     j = 250;
     arrow(p(1,j),p(1,j+1),'Length',Len)
     arrow(p(2,j),p(2,j+1),'Length',Len)
+    
 end
 
 mustr = @(mu) sprintf('where $%s = %g$','\mu',mu);
@@ -157,6 +158,11 @@ Step_time = Simulation_time / numel(mu_vals);
 tic
 
 eigs = zeros(2,numel(mu_vals));
+
+stop_vals = [0.1 0.5 0.9];
+[~,stop_ind] = min(abs(mu_vals - stop_vals'),[],2);
+
+
 
 T = 1000;
 x0 = [1;1];
@@ -244,12 +250,16 @@ for mu = mu_vals
     Time_elapsed_in_loop = toc;
     pause(Step_time - Time_elapsed_in_loop)
     tic
-    ind = ind + 1;
 
+    if ismember(ind,stop_ind)
+        keyboard
+    end
+
+    ind = ind + 1;
     % exportgraphics(fig,sprintf('Results/Bifurcation/%04d.jpg',ind-1),ContentType='image');
 end
 
-Ax3 = nexttile; hold on; grid on; box on;
+Ax3 = nexttile(6); hold on; grid on; box on;
 Sf = surf(X,MU,Y,'FaceColor','r','FaceAlpha',1,'EdgeColor','none');
 Lght1 = light(Ax3,'Position',[0 0 1]);
 Lght2 = light(Ax3,'Position',[0 0 -1]);
